@@ -1,0 +1,14 @@
+server:
+  port: 9201
+service-url:
+  user-service: http://localhost:8080
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: path_route
+          uri: ${service-url.user-service}/api/say
+          predicates:
+            - Path=/api/hello
