@@ -5,10 +5,29 @@ service-url:
 spring:
   application:
     name: gateway-service
+  data:
+    redis:
+      host: localhost
+      password:
+      port: 6379
   cloud:
     gateway:
       routes:
-        - id: path_route
-          uri: ${service-url.user-service}/api/say
+        - id: requestratelimiter_route
+          uri: ${service-url.user-service}
           predicates:
-            - Path=/api/hello
+            - Method=GET
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1  #每秒允许处理的请求数量
+                redis-rate-limiter.burstCapacity: 2  #每秒最大处理的请求数量
+                key-resolver: "#{@ipKeyResolver}"  #限流策略，对应策略的Bean
+
+#        - id: path_route
+#          uri: ${service-url.user-service}
+#          predicates:
+##            - Path=/api/hello
+#            - Method=GET
+#          filters:
+#            - PrefixPath=/api
